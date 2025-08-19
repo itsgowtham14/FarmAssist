@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Select Your Crop - Farmer Assistant</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1>Farmer Crop Selection</h1>
+    <p>Choose your state, season, and crop to get started</p>
+  </header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="govt-info.html">Govt Inputs</a>
+  </nav>
+
+  <main>
+    <section class="card">
+      <h2>Select Crop Details</h2>
+      <form action="dashboard.html" method="get">
+        
+        <!-- State Dropdown -->
+        <label for="state">State:</label>
+        <select name="state" id="state" required>
+          <option value="">-- Select State --</option>
+          <option value="Andhra Pradesh">Andhra Pradesh</option>
+          <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+          <option value="Assam">Assam</option>
+          <option value="Bihar">Bihar</option>
+          <option value="Chhattisgarh">Chhattisgarh</option>
+          <option value="Goa">Goa</option>
+          <option value="Gujarat">Gujarat</option>
+          <option value="Haryana">Haryana</option>
+          <option value="Himachal Pradesh">Himachal Pradesh</option>
+          <option value="Jharkhand">Jharkhand</option>
+          <option value="Karnataka">Karnataka</option>
+          <option value="Kerala">Kerala</option>
+          <option value="Madhya Pradesh">Madhya Pradesh</option>
+          <option value="Maharashtra">Maharashtra</option>
+          <option value="Manipur">Manipur</option>
+          <option value="Meghalaya">Meghalaya</option>
+          <option value="Mizoram">Mizoram</option>
+          <option value="Nagaland">Nagaland</option>
+          <option value="Odisha">Odisha</option>
+          <option value="Punjab">Punjab</option>
+          <option value="Rajasthan">Rajasthan</option>
+          <option value="Sikkim">Sikkim</option>
+          <option value="Tamil Nadu">Tamil Nadu</option>
+          <option value="Telangana">Telangana</option>
+          <option value="Tripura">Tripura</option>
+          <option value="Uttar Pradesh">Uttar Pradesh</option>
+          <option value="Uttarakhand">Uttarakhand</option>
+          <option value="West Bengal">West Bengal</option>
+        </select>
+
+        <!-- Season Dropdown -->
+        <label for="season">Season:</label>
+        <select name="season" id="season" required>
+          <option value="">-- Select Season --</option>
+          <option value="Kharif">Kharif (June to October)</option>
+          <option value="Rabi">Rabi (October to March)</option>
+          <option value="Zaid">Zaid (March - June)</option>
+        </select>
+        <br>
+        <!-- Crop Dropdown -->
+        <label for="crop">Crop:</label>
+        <select name="crop" id="crop" required>
+          <option value="">-- Select Crop --</option>
+        </select>
+
+        <small style="color: #555;">Crop list includes top 2–3 per state. More filtering coming soon.</small>
+        <br>
+        <!-- Optional Inputs -->
+        <label for="sowing-date">Expected Sowing Date:</label>
+        <input type="date" id="sowing-date" name="sowing-date">
+
+        <label for="area">Land Area (in acres):</label>
+        <input type="number" id="area" name="area" placeholder="e.g., 2.5" step="0.1" min="0">
+
+        <!-- Submit Button -->
+        <button type="submit">Add Crop to Dashboard</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Smart Farming Assistant | Built for Capstone Project</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const stateSelect = document.getElementById('state');
+      const seasonSelect = document.getElementById('season');
+      const cropSelect = document.getElementById('crop');
+
+      // Crop data with state and season mappings
+      const cropData = {
+        'Andhra Pradesh': {
+          Kharif: ['Rice', 'Maize', 'Cotton'],
+          Rabi: ['Sunflower', 'Chickpea'],
+          Zaid: ['Maize']
+        },
+        'Arunachal Pradesh': {
+          Kharif: ['Paddy', 'Maize', 'Millets'],
+          Rabi: ['Millets'],
+          Zaid: []
+        },
+        'Assam': {
+          Kharif: ['Paddy', 'Tea'],
+          Rabi: ['Mustard'],
+          Zaid: []
+        },
+        'Bihar': {
+          Kharif: ['Maize', 'Paddy'],
+          Rabi: ['Wheat', 'Sugarcane'],
+          Zaid: ['Maize']
+        },
+        'Chhattisgarh': {
+          Kharif: ['Rice', 'Maize'],
+          Rabi: ['Lentils'],
+          Zaid: []
+        },
+        'Goa': {
+          Kharif: ['Rice', 'Cashew'],
+          Rabi: ['Coconut'],
+          Zaid: []
+        },
+        'Gujarat': {
+          Kharif: ['Groundnut', 'Cotton'],
+          Rabi: ['Wheat'],
+          Zaid: []
+        },
+        'Haryana': {
+          Kharif: ['Paddy', 'Sugarcane'],
+          Rabi: ['Wheat', 'Mustard'],
+          Zaid: []
+        },
+        'Himachal Pradesh': {
+          Kharif: ['Maize'],
+          Rabi: ['Barley', 'Potato'],
+          Zaid: ['Apple']
+        },
+        'Jharkhand': {
+          Kharif: ['Paddy', 'Maize'],
+          Rabi: ['Pulses'],
+          Zaid: []
+        },
+        'Karnataka': {
+          Kharif: ['Ragi', 'Tur', 'Cotton'],
+          Rabi: ['Cotton'],
+          Zaid: []
+        },
+        'Kerala': {
+          Kharif: ['Paddy', 'Rubber'],
+          Rabi: ['Coconut'],
+          Zaid: []
+        },
+        'Madhya Pradesh': {
+          Kharif: ['Soybean'],
+          Rabi: ['Wheat', 'Gram'],
+          Zaid: []
+        },
+        'Maharashtra': {
+          Kharif: ['Jowar', 'Soybean', 'Cotton'],
+          Rabi: ['Sugarcane'],
+          Zaid: []
+        },
+        'Manipur': {
+          Kharif: ['Paddy', 'Maize'],
+          Rabi: ['Ginger'],
+          Zaid: []
+        },
+        'Meghalaya': {
+          Kharif: ['Turmeric', 'Ginger'],
+          Rabi: ['Potato'],
+          Zaid: []
+        },
+        'Mizoram': {
+          Kharif: ['Paddy', 'Maize'],
+          Rabi: ['Chilli'],
+          Zaid: []
+        },
+        'Nagaland': {
+          Kharif: ['Rice', 'Maize'],
+          Rabi: ['Pulses'],
+          Zaid: []
+        },
+        'Odisha': {
+          Kharif: ['Rice', 'Groundnut'],
+          Rabi: ['Pulses'],
+          Zaid: []
+        },
+        'Punjab': {
+          Kharif: ['Paddy', 'Sugarcane'],
+          Rabi: ['Wheat'],
+          Zaid: []
+        },
+        'Rajasthan': {
+          Kharif: ['Bajra'],
+          Rabi: ['Wheat', 'Barley'],
+          Zaid: []
+        },
+        'Sikkim': {
+          Kharif: ['Maize', 'Paddy'],
+          Rabi: ['Cardamom'],
+          Zaid: []
+        },
+        'Tamil Nadu': {
+          Kharif: ['Rice', 'Cotton'],
+          Rabi: ['Sugarcane'],
+          Zaid: []
+        },
+        'Telangana': {
+          Kharif: ['Paddy', 'Cotton'],
+          Rabi: ['Chickpea'],
+          Zaid: []
+        },
+        'Tripura': {
+          Kharif: ['Paddy'],
+          Rabi: ['Potato'],
+          Zaid: ['Pineapple']
+        },
+        'Uttar Pradesh': {
+          Kharif: ['Paddy', 'Sugarcane'],
+          Rabi: ['Wheat'],
+          Zaid: []
+        },
+        'Uttarakhand': {
+          Kharif: ['Rice', 'Mandua'],
+          Rabi: ['Wheat'],
+          Zaid: []
+        },
+        'West Bengal': {
+          Kharif: ['Paddy', 'Jute'],
+          Rabi: ['Potato'],
+          Zaid: []
+        }
+      };
+
+      // Function to update crop dropdown
+      function updateCropOptions() {
+        const selectedState = stateSelect.value;
+        const selectedSeason = seasonSelect.value;
+
+        // Clear existing options
+        cropSelect.innerHTML = '<option value="">-- Select Crop --</option>';
+
+        // If both state and season are selected, populate crops
+        if (selectedState && selectedSeason) {
+          const crops = cropData[selectedState][selectedSeason] || [];
+          crops.forEach(crop => {
+            const option = document.createElement('option');
+            option.value = crop;
+            option.textContent = crop;
+            cropSelect.appendChild(option);
+          });
+
+          // Disable crop dropdown if no crops are available
+          cropSelect.disabled = crops.length === 0;
+          if (crops.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No crops available';
+            cropSelect.appendChild(option);
+          }
+        } else {
+          cropSelect.disabled = true;
+        }
+      }
+
+      // Event listeners for state and season dropdowns
+      stateSelect.addEventListener('change', updateCropOptions);
+      seasonSelect.addEventListener('change', updateCropOptions);
+
+      // Initialize crop dropdown as disabled
+      cropSelect.disabled = true;
+    });
+  </script>
+</body>
+</html>

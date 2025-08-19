@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crop Timeline</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header id="crop-title" class="timeline-header">
+    Crop Timeline for <span id="crop-name"></span> (<span id="season-name"></span>, <span id="state-name"></span>)
+  </header>
+
+  <ul class="timeline-list" id="timeline-list">
+    <!-- Timeline steps will be dynamically generated here -->
+  </ul>
+
+  <div id="issue-form" style="display: none;">
+    <h3>Report an Issue</h3>
+    <form id="report-issue-form">
+      <label for="issue-week">Week:</label>
+      <select id="issue-week" name="week" required></select>
+      <label for="issue-type">Issue Type:</label>
+      <select id="issue-type" name="issue-type" required>
+        <option value="">-- Select Issue --</option>
+        <option value="heavy-rainfall">Heavy Rainfall</option>
+        <option value="pest-infestation">Pest Infestation</option>
+        <option value="drought">Drought</option>
+        <option value="nutrient-deficiency">Nutrient Deficiency</option>
+      </select>
+      <label for="issue-details">Details (optional):</label>
+      <textarea id="issue-details" name="details" rows="4" placeholder="Describe the issue..."></textarea>
+      <button type="submit">Submit Issue</button>
+      <button type="button" id="cancel-issue">Cancel</button>
+    </form>
+  </div>
+
+  <a href="dashboard.html" class="back-button">← Back to Dashboard</a>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Get URL parameters
+      const params = new URLSearchParams(window.location.search);
+      const state = params.get('state') || 'Unknown';
+      const season = params.get('season') || 'Unknown';
+      const crop = params.get('crop') || 'Unknown';
+
+      // Update header
+      document.getElementById('crop-name').textContent = crop;
+      document.getElementById('season-name').textContent = season;
+      document.getElementById('state-name').textContent = state;
+
+      // Crop timeline data (example for Rice, extendable for other crops)
+      const cropTimelines = {
+        Rice: [
+          { week: 1, task: 'Land Preparation', description: 'Prepare the land using ploughs or tractors. Remove weeds and level the field.', recommendations: [] },
+          { week: 2, task: 'Sowing', description: 'Sow seeds with 20-25 cm row spacing and 2-3 cm depth.', recommendations: [] },
+          { week: 3, task: 'Early Irrigation', description: 'Provide light irrigation to support germination.', recommendations: [] },
+          { week: 4, task: 'Fertilization (Base)', description: 'Apply urea (40 kg/acre) and DAP (20 kg/acre) as per soil test.', recommendations: [] },
+          { week: 6, task: 'Weed Control', description: 'Apply pre-emergent herbicides or manual weeding.', recommendations: [] },
+          { week: 8, task: 'Mid-stage Irrigation', description: 'Maintain 5 cm water depth during tillering.', recommendations: [] },
+          { week: 10, task: 'Fertilization (Top-dressing)', description: 'Apply urea (30 kg/acre) during panicle initiation.', recommendations: [] },
+          { week: 12, task: 'Pest Monitoring', description: 'Check for pests like stem borer or leaf folder.', recommendations: [] },
+          { week: 16, task: 'Flowering Irrigation', description: 'Ensure consistent irrigation during flowering.', recommendations: [] },
+          { week: 20, task: 'Harvesting', description: 'Harvest when 80% of grains are golden and firm.', recommendations: [] }
+        ],
+        Wheat: [
+          { week: 1, task: 'Land Preparation', description: 'Plough and level the field, incorporate organic manure.', recommendations: [] },
+          { week: 2, task: 'Sowing', description: 'Sow seeds at 20 cm row spacing and 5-6 cm depth.', recommendations: [] },
+          { week: 3, task: 'Irrigation', description: 'Provide first irrigation 20-25 days after sowing.', recommendations: [] },
+          { week: 5, task: 'Fertilization', description: 'Apply urea (50 kg/acre) and MOP (20 kg/acre).', recommendations: [] },
+          { week: 7, task: 'Weed Control', description: 'Use post-emergent herbicides or manual weeding.', recommendations: [] },
+          { week: 10, task: 'Second Irrigation', description: 'Irrigate during crown root initiation.', recommendations: [] },
+          { week: 14, task: 'Top-dressing', description: 'Apply urea (30 kg/acre) during jointing stage.', recommendations: [] },
+          { week: 18, task: 'Pest Control', description: 'Monitor for aphids or rust diseases.', recommendations: [] },
+          { week: 22, task: 'Harvesting', description: 'Harvest when grains are hard and straw is dry.', recommendations: [] }
+        ]
+        // Add more crops as needed
+      };
+
+      // Issue response mappings
+      const issueResponses = {
+        'heavy-rainfall': {
+          recommendation: 'Ensure proper drainage. Apply fungicides like Mancozeb (2 g/L) to prevent fungal diseases.',
+          affectedWeeks: [3, 8, 16], // Adjust irrigation tasks
+          newDescription: 'Reduce irrigation frequency due to excess water.'
+        },
+        'pest-infestation': {
+          recommendation: 'Apply pesticides like Imidacloprid (0.3 ml/L) for pests like stem borer or aphids.',
+          affectedWeeks: [12, 18], // Adjust pest monitoring tasks
+          newDescription: 'Increase pest monitoring and apply recommended pesticide.'
+        },
+        'drought': {
+          recommendation: 'Increase irrigation frequency. Use drip irrigation if possible.',
+          affectedWeeks: [3, 8, 16], // Adjust irrigation tasks
+          newDescription: 'Provide additional irrigation to compensate for water scarcity.'
+        },
+        'nutrient-deficiency': {
+          recommendation: 'Apply foliar spray of micronutrients (e.g., Zinc sulphate 0.5%). Conduct soil test.',
+          affectedWeeks: [4, 10, 14], // Adjust fertilization tasks
+          newDescription: 'Apply additional fertilizers based on deficiency symptoms.'
+        }
+      };
+
+      // Load timeline from localStorage or use default
+      const storageKey = `timeline_${state}_${season}_${crop}`;
+      let timeline = JSON.parse(localStorage.getItem(storageKey)) || cropTimelines[crop] || cropTimelines['Rice']; // Fallback to Rice if crop not found
+      let notes = JSON.parse(localStorage.getItem(`${storageKey}_notes`)) || {};
+
+      // Function to render timeline
+      function renderTimeline() {
+        const timelineList = document.getElementById('timeline-list');
+        timelineList.innerHTML = '';
+        timeline.forEach(step => {
+          const li = document.createElement('li');
+          li.className = 'timeline-step';
+          li.innerHTML = `
+            <div class="step-header">Week ${step.week}: ${step.task}</div>
+            <p>${step.description}</p>
+            ${step.recommendations.length ? `<p><strong>Recommendations:</strong> ${step.recommendations.join('; ')}</p>` : ''}
+            ${notes[step.week] ? `<p><strong>Notes:</strong> ${notes[step.week]}</p>` : ''}
+            <div class="step-actions">
+              <button class="done" data-week="${step.week}">${step.done ? 'Marked as Done' : 'Mark as Done'}</button>
+              <button class="issue" data-week="${step.week}">Report Issue</button>
+              <button class="notes" data-week="${step.week}">Add Notes</button>
+            </div>
+          `;
+          if (step.done) li.classList.add('completed');
+          timelineList.appendChild(li);
+        });
+
+        // Attach event listeners to buttons
+        document.querySelectorAll('.done').forEach(button => {
+          button.addEventListener('click', () => {
+            const week = parseInt(button.dataset.week);
+            timeline.find(step => step.week === week).done = true;
+            localStorage.setItem(storageKey, JSON.stringify(timeline));
+            renderTimeline();
+          });
+        });
+
+        document.querySelectorAll('.issue').forEach(button => {
+          button.addEventListener('click', () => showIssueForm(button.dataset.week));
+        });
+
+        document.querySelectorAll('.notes').forEach(button => {
+          button.addEventListener('click', () => promptForNotes(button.dataset.week));
+        });
+      }
+
+      // Function to show issue reporting form
+      function showIssueForm(week) {
+        const issueForm = document.getElementById('issue-form');
+        const issueWeekSelect = document.getElementById('issue-week');
+        issueWeekSelect.innerHTML = `<option value="${week}">Week ${week}</option>`;
+        issueForm.style.display = 'block';
+      }
+
+      // Function to prompt for notes
+      function promptForNotes(week) {
+        const note = prompt(`Enter notes for Week ${week}:`, notes[week] || '');
+        if (note !== null) {
+          notes[week] = note;
+          localStorage.setItem(`${storageKey}_notes`, JSON.stringify(notes));
+          renderTimeline();
+        }
+      }
+
+      // Handle issue form submission
+      document.getElementById('report-issue-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const week = parseInt(document.getElementById('issue-week').value);
+        const issueType = document.getElementById('issue-type').value;
+        const details = document.getElementById('issue-details').value;
+
+        if (issueType) {
+          const response = issueResponses[issueType];
+          if (response) {
+            // Update timeline with recommendations
+            response.affectedWeeks.forEach(w => {
+              const step = timeline.find(s => s.week === w);
+              if (step && !step.recommendations.includes(response.recommendation)) {
+                step.recommendations.push(response.recommendation);
+                if (response.newDescription) step.description = response.newDescription;
+              }
+            });
+            localStorage.setItem(storageKey, JSON.stringify(timeline));
+            renderTimeline();
+          }
+          document.getElementById('issue-form').style.display = 'none';
+          document.getElementById('report-issue-form').reset();
+        }
+      });
+
+      // Cancel issue form
+      document.getElementById('cancel-issue').addEventListener('click', () => {
+        document.getElementById('issue-form').style.display = 'none';
+        document.getElementById('report-issue-form').reset();
+      });
+
+      // Initialize timeline
+      renderTimeline();
+    });
+  </script>
+</body>
+</html>

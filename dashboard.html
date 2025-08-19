@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Farmer Assistant</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1 class="index_h1">Crop Dashboard</h1>
+    <p>Overview of your selected crops and details</p>
+  </header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="select-crop.html">Select Crop</a>
+    <a href="knowledgebase.html">Knowledge Base</a>
+  </nav>
+
+  <main>
+    <section class="card">
+      <h2>Your Selected Crop Details</h2>
+
+      <table>
+        <tr>
+          <th>State</th>
+          <td id="state">[Selected State]</td>
+        </tr>
+        <tr>
+          <th>Season</th>
+          <td id="season">[Selected Season]</td>
+        </tr>
+        <tr>
+          <th>Crop</th>
+          <td id="crop">[Selected Crop]</td>
+        </tr>
+        <tr>
+          <th>Sowing Date</th>
+          <td id="sowing-date">[Selected Date]</td>
+        </tr>
+        <tr>
+          <th>Land Area</th>
+          <td id="area">[Entered Area] acres</td>
+        </tr>
+      </table>
+      <button id="timeline-button">View Timeline</button>
+      <p style="color: #777;"><i>Note: This dashboard displays data from your selection.</i></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 <strong>FarmAssist</strong>. Empowering Farmers Across India.</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Function to get URL parameters
+      function getQueryParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          state: params.get('state') || 'Not selected',
+          season: params.get('season') || 'Not selected',
+          crop: params.get('crop') || 'Not selected',
+          sowingDate: params.get('sowing-date') || 'Not provided',
+          area: params.get('area') || 'Not provided'
+        };
+      }
+
+      // Get parameters and update table
+      const params = getQueryParams();
+      document.getElementById('state').textContent = params.state;
+      document.getElementById('season').textContent = params.season;
+      document.getElementById('crop').textContent = params.crop;
+      document.getElementById('sowing-date').textContent = params.sowingDate;
+      document.getElementById('area').textContent = params.area ? `${params.area} acres` : 'Not provided';
+
+      // Update timeline button URL dynamically
+      const timelineButton = document.getElementById('timeline-button');
+      timelineButton.addEventListener('click', () => {
+        const timelineUrl = `timeline.html?state=${encodeURIComponent(params.state)}&season=${encodeURIComponent(params.season)}&crop=${encodeURIComponent(params.crop)}`;
+        window.location.href = timelineUrl;
+      });
+    });
+  </script>
+</body>
+</html>
